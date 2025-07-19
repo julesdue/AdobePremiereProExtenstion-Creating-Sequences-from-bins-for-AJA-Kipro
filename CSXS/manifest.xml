@@ -41,8 +41,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 					<Menu>KiPro Sequences</Menu>
 					<Geometry>
 						<Size>
-							<Height>200</Height>
-							<Width>300</Width>
+							<Height>300</Height>
+							<Width>500</Width>
 						</Size>
 					</Geometry>
 				</UI>

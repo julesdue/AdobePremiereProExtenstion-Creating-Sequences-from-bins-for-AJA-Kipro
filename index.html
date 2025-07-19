@@ -2,12 +2,14 @@
 <html>
 <title>KiPro Sequences</title>
 <head>
-	<meta charset="utf-8">
-	<script src="./ext.js"></script>
-	<script src="./lib/CSInterface.js"></script>
-	<script src="./lib/jquery-1.9.1.js"></script>
-	<script src="./lib/Vulcan.js"></script>
-	<link id="ppstyle" href="css/style.css" rel="stylesheet" type="text/css">
+<meta charset="utf-8">
+<script src="./ext.js"></script>
+<script src="./lib/CSInterface.js"></script>
+<script src="./lib/jquery-1.9.1.js"></script>
+<script src="./lib/Vulcan.js"></script>
+<script src="./jsx/createSequencesFromBin.jsx"></script>
+<script src="./jsx/exportSequencesToME.jsx"></script>
+<link id="ppstyle" href="css/style.css" rel="stylesheet" type="text/css">
 <script type="text/javascript">
 	document.addEventListener('DOMContentLoaded', function() {
 		// Load KiProSequences.jsx into the ExtendScript context
@@ -15,17 +17,35 @@
 		var extensionRoot = csInterface.getSystemPath(SystemPath.EXTENSION);
 		csInterface.evalScript('$.evalFile("' + extensionRoot + '/KiProSequences.jsx")');
 
+		// listener for createSequencesFromBin button
 		document.getElementById('createSequencesFromBin').onclick = function() {
 			var binName = document.getElementById('binNameInput').value;
 			var blackFrameName = document.getElementById('blackFrameInput').value;
+			var extensionRoot = csInterface.getSystemPath(SystemPath.EXTENSION);
 			if (binName) {
-				// Pass both binName and blackFrameName to the ExtendScript function (update ExtendScript as needed)
-				csInterface.evalScript('$._PPP_.createSequencesFromBin("' + binName.replace(/"/g, '\"') + '", "' + blackFrameName.replace(/"/g, '\"') + '")');
+				// Pass binName, blackFrameName, and extensionRoot to the ExtendScript function
+				csInterface.evalScript('$._PPP_.createSequencesFromBin("' + binName.replace(/"/g, '\\"') + '", "' + extensionRoot.replace(/"/g, '\\"') + '")');
 			}
 		};
+
+		// listener for exportSequencesToME button
+		document.getElementById('exportSequencesToME').onclick = function() {
+			var binName = document.getElementById('binNameInput').value;
+			var exportBasePath = document.getElementById('exportBasePathInput').value;
+			var extensionRoot = csInterface.getSystemPath(SystemPath.EXTENSION);
+			if (binName && exportBasePath) {
+				// Escape backslashes for ExtendScript string
+				var safeExportBasePath = exportBasePath.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+				var safeExtensionRoot = extensionRoot.replace(/"/g, '\\"');
+				csInterface.evalScript('$._PPP_.exportSequencesToME("' + binName.replace(/"/g, '\\"') + '", "' + safeExportBasePath + '", "' + safeExtensionRoot + 'payloads' + ((safeExtensionRoot.slice(-1) === '/' || safeExtensionRoot.slice(-1) === '\\') ? '' : '/') + '")');
+			}
+		};
+
 	});
 </script>
 </head>
+
+<!-- The body of the HTML document -->
 <body>
 	<p>Name of bin to create sequences</p>
 	<input type="text" id="binNameInput" placeholder="Enter bin name" value="animation" />
@@ -33,6 +53,10 @@
 	<p>Name of black frame at beginning</p>
 	<input type="text" id="blackFrameInput" placeholder="Enter black_frame name" value="schwarz_frame" />
 	<br/>
-	<button id="createSequencesFromBin">Create Sequences</button>
+	<p>Export base path</p>
+	<input type="text" id="exportBasePathInput" placeholder="I:\2025\2025-festival\converting_dnx\out" value="I:\2025\2025-festival\converting_dnx\out" />
+	<br/>
+		<button id="createSequencesFromBin">Create Sequences</button>
+		<button id="exportSequencesToME">Export Sequences to ME</button>
 </body>
 </html>

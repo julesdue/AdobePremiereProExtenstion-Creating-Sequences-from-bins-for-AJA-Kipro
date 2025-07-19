@@ -34,6 +34,7 @@ button
 button:hover
 {
 	background-color: var(--accent-color-hover);
+	transition: background-color 0.3s;
 }	
 
 input[type=text]
@@ -48,6 +49,7 @@ input[type=text]
 	padding: 5px;
 	color: var(--font-color);
 	font-size: var(--font-size);
+	
 }
 input[type=text]:hover
 {
