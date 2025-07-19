@@ -1,0 +1,55 @@
+:root {
+	--accent-color: #005cc8;
+	--accent-color-hover: #0050a0;
+	--accent-color-input: #000000;
+	--border-radius: 4px;
+	--font-color: #b0b0b0;
+	--font-color-button: #efefef;
+	--font-size: 11px;
+
+}
+
+* {
+	font-family: "Adobe Clean", "Segoe UI", "Arial", sans-serif;
+
+}
+
+p {
+	font-size: var(--font-size);
+	color: var(--font-color);
+	margin: 0px;
+}
+
+button
+{
+	font-size:12px;
+	color: var(--font-color-button);
+	margin: 10px 10px 10px 0px;
+
+	border: none;
+	padding: 8px;
+	border-radius: var(--border-radius);
+	background-color: var(--accent-color);
+}
+button:hover
+{
+	background-color: var(--accent-color-hover);
+}	
+
+input[type=text]
+{
+	height: 17px;
+	width: 90%;
+	border-radius: var(--border-radius);
+	background-color: var(--accent-color-input);
+	border-color: #4e4e4e;
+	border: 0.5px;
+	margin: 5px 0px 10px 0px;
+	padding: 5px;
+	color: var(--font-color);
+	font-size: var(--font-size);
+}
+input[type=text]:hover
+{
+	border-color: #858585;
+}

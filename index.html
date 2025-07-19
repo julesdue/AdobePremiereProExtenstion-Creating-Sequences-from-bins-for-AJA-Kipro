@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<title>KiPro Sequences</title>
+<head>
+	<meta charset="utf-8">
+	<script src="./ext.js"></script>
+	<script src="./lib/CSInterface.js"></script>
+	<script src="./lib/jquery-1.9.1.js"></script>
+	<script src="./lib/Vulcan.js"></script>
+	<link id="ppstyle" href="css/style.css" rel="stylesheet" type="text/css">
+<script type="text/javascript">
+	document.addEventListener('DOMContentLoaded', function() {
+		// Load KiProSequences.jsx into the ExtendScript context
+		var csInterface = new CSInterface();
+		var extensionRoot = csInterface.getSystemPath(SystemPath.EXTENSION);
+		csInterface.evalScript('$.evalFile("' + extensionRoot + '/KiProSequences.jsx")');
+
+		document.getElementById('createSequencesFromBin').onclick = function() {
+			var binName = document.getElementById('binNameInput').value;
+			var blackFrameName = document.getElementById('blackFrameInput').value;
+			if (binName) {
+				// Pass both binName and blackFrameName to the ExtendScript function (update ExtendScript as needed)
+				csInterface.evalScript('$._PPP_.createSequencesFromBin("' + binName.replace(/"/g, '\"') + '", "' + blackFrameName.replace(/"/g, '\"') + '")');
+			}
+		};
+	});
+</script>
+</head>
+<body>
+	<p>Name of bin to create sequences</p>
+	<input type="text" id="binNameInput" placeholder="Enter bin name" value="animation" />
+	<br/>
+	<p>Name of black frame at beginning</p>
+	<input type="text" id="blackFrameInput" placeholder="Enter black_frame name" value="schwarz_frame" />
+	<br/>
+	<button id="createSequencesFromBin">Create Sequences</button>
+</body>
+</html>
