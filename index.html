@@ -12,36 +12,44 @@
 <link id="ppstyle" href="css/style.css" rel="stylesheet" type="text/css">
 <script type="text/javascript">
 	document.addEventListener('DOMContentLoaded', function() {
-		// Load KiProSequences.jsx into the ExtendScript context
-		var csInterface = new CSInterface();
-		var extensionRoot = csInterface.getSystemPath(SystemPath.EXTENSION);
-		csInterface.evalScript('$.evalFile("' + extensionRoot + '/KiProSequences.jsx")');
+        var csInterface = new CSInterface();
 
-		// listener for createSequencesFromBin button
-		document.getElementById('createSequencesFromBin').onclick = function() {
-			var binName = document.getElementById('binNameInput').value;
-			var blackFrameName = document.getElementById('blackFrameInput').value;
-			var extensionRoot = csInterface.getSystemPath(SystemPath.EXTENSION);
-			if (binName) {
-				// Pass binName, blackFrameName, and extensionRoot to the ExtendScript function
-				csInterface.evalScript('$._PPP_.createSequencesFromBin("' + binName.replace(/"/g, '\\"') + '", "' + extensionRoot.replace(/"/g, '\\"') + '")');
-			}
-		};
+        // Get the extension root path and immediately normalize it to use forward slashes.
+        // This works reliably on both Windows and macOS.
+        var extensionRoot = csInterface.getSystemPath(SystemPath.EXTENSION);
+        var normalizedExtensionRoot = extensionRoot.replace(/\\/g, '/');
 
-		// listener for exportSequencesToME button
-		document.getElementById('exportSequencesToME').onclick = function() {
-			var binName = document.getElementById('binNameInput').value;
-			var exportBasePath = document.getElementById('exportBasePathInput').value;
-			var extensionRoot = csInterface.getSystemPath(SystemPath.EXTENSION);
-			if (binName && exportBasePath) {
-				// Escape backslashes for ExtendScript string
-				var safeExportBasePath = exportBasePath.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-				var safeExtensionRoot = extensionRoot.replace(/"/g, '\\"');
-				csInterface.evalScript('$._PPP_.exportSequencesToME("' + binName.replace(/"/g, '\\"') + '", "' + safeExportBasePath + '", "' + safeExtensionRoot + 'payloads' + ((safeExtensionRoot.slice(-1) === '/' || safeExtensionRoot.slice(-1) === '\\') ? '' : '/') + '")');
-			}
-		};
 
-	});
+        // listener for createSequencesFromBin button
+        document.getElementById('createSequencesFromBin').onclick = function() {
+            var binName = document.getElementById('binNameInput').value;
+            if (binName) {
+                // Escape quotes in user input and pass the normalized extension path
+                var safeBinName = binName.replace(/"/g, '\\"');
+                csInterface.evalScript('$._PPP_.createSequencesFromBin("' + safeBinName + '", "' + normalizedExtensionRoot + '")');
+            }
+        };
+
+        // listener for exportSequencesToME button
+        document.getElementById('exportSequencesToME').onclick = function() {
+            var binName = document.getElementById('binNameInput').value;
+            var exportBasePath = document.getElementById('exportBasePathInput').value;
+
+            if (binName && exportBasePath) {
+                // Normalize the user-provided path as well
+                var normalizedExportPath = exportBasePath.replace(/\\/g, '/');
+
+                // Construct the payloads path. Appending a slash is now simple and clean.
+                var payloadsPath = normalizedExtensionRoot + '/payloads/';
+
+                // Escape any quotes in the inputs before passing them to ExtendScript
+                var safeBinName = binName.replace(/"/g, '\\"');
+                var safeExportPath = normalizedExportPath.replace(/"/g, '\\"');
+                
+                csInterface.evalScript('$._PPP_.exportSequencesToME("' + safeBinName + '", "' + safeExportPath + '", "' + payloadsPath + '")');
+            }
+        };
+    });
 </script>
 </head>
 
