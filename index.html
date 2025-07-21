@@ -27,7 +27,7 @@
 				var csInterface = new CSInterface();
 				var OSVersion = csInterface.getOSInformation();
 				var PlugPlugExtensionPath = csInterface.getSystemPath(SystemPath.EXTENSION);
-				PlugPlugExtensionPath = normalizePath(PlugPlugExtensionPath);
+				// PlugPlugExtensionPath = normalizePath(PlugPlugExtensionPath);
 
 				// csInterface.evalScript('$._PPP_.getUserName()', myUserNameFunction);
 
@@ -36,6 +36,8 @@
 					if (OSVersion.indexOf("Windows") >= 0) {
 						// var initPath = 'C:\\Users\\' + csInterface.getSystemPath(SystemPath.USER_DATA);
 						var sep = '\\\\';
+						// sep = normalizePath(sep);
+
 						PlugPlugExtensionPath = PlugPlugExtensionPath.replace(/[/\\]/g, '\\');
 					} else {
 						// var initPath = '/Users/' + csInterface.getSystemPath(SystemPath.USER_DATA);
@@ -44,10 +46,10 @@
 
 					var binName = $('#binNameInput').val();
 					var blackFrameName = $('#blackFrameInput').val();
-					var payloadsPath = PlugPlugExtensionPath + '/payloads/';
-					payloadsPath = normalizePath(payloadsPath);
-					// var payloadsPath = PlugPlugExtensionPath + '\\payloads\\';
-					// payloadsPath = payloadsPath.replace(/\\/g, sep); // Ensure path separators are consistent
+					// var payloadsPath = PlugPlugExtensionPath + '/payloads/';
+					// payloadsPath = normalizePath(payloadsPath);
+					var payloadsPath = PlugPlugExtensionPath + '\\payloads\\';
+					payloadsPath = payloadsPath.replace(/\\/g, sep); // Ensure path separators are consistent
 
 					// evaluate the ExtendScript function to create sequences from the bin
 					csInterface.evalScript('$._PPP_.createSequencesFromBin("' + binName + '", "' + blackFrameName + '", "' + payloadsPath + '", "' + sep + '")');
@@ -61,6 +63,7 @@
 				var csInterface = new CSInterface();
 				var OSVersion = csInterface.getOSInformation();
 				var PlugPlugExtensionPath = csInterface.getSystemPath(SystemPath.EXTENSION);
+				// PlugPlugExtensionPath = normalizePath(PlugPlugExtensionPath);
 
 				// csInterface.evalScript('$._PPP_.getUserName()', myUserNameFunction);
 
@@ -69,6 +72,7 @@
 					if (OSVersion.indexOf("Windows") >= 0) {
 						// var initPath = 'C:\\Users\\' + csInterface.getSystemPath(SystemPath.USER_DATA);
 						var sep = '\\\\';
+						// sep = normalizePath(sep);
 						PlugPlugExtensionPath = PlugPlugExtensionPath.replace(/[/\\]/g, '\\');
 					} else {
 						// var initPath = '/Users/' + csInterface.getSystemPath(SystemPath.USER_DATA);
@@ -78,6 +82,8 @@
 					var binName = $('#binNameInput').val();
 					var exportBasePath = $('#exportBasePathInput').val();
 					exportBasePath = exportBasePath.replace(/\\/g, sep); // Ensure path separators are consistent
+					// var payloadsPath = PlugPlugExtensionPath + '/payloads/';
+					// payloadsPath = normalizePath(payloadsPath);
 					var payloadsPath = PlugPlugExtensionPath + '\\payloads\\';
 					payloadsPath = payloadsPath.replace(/\\/g, sep); // Ensure path separators are consistent
 
@@ -95,7 +101,7 @@
 		
         <div id="section1">
             <p>Name of bin to create sequences</p>
-            <input type="text" id="binNameInput" placeholder="Enter bin name" value="animation" />
+            <input type="text" id="binNameInput" placeholder="Enter bin name" value="test" />
             <br/>
             <p>Name of black frame at beginning</p>
             <input type="text" id="blackFrameInput" placeholder="Enter black_frame name" value="schwarz_frame" />

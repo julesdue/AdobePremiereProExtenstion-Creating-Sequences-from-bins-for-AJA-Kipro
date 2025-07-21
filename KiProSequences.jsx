@@ -99,7 +99,7 @@ $._PPP_.createSequencesFromBin = function(binName, blackFrameName, payloadsPath,
                 }
             }
             if (exists) {
-                $._PPP_.updateEventPanel('Sequence already exists: ' + seqName + ', skipping.');
+                $._PPP_.updateEventPanel('Sequence already exists in project: ' + seqName + ', skipping.');
                 continue;
             }
             
@@ -115,27 +115,27 @@ $._PPP_.createSequencesFromBin = function(binName, blackFrameName, payloadsPath,
             
             // Log the components of the inserted clip
 			
-            var insertedClipComponents = newSeq.videoTracks[0].clips[0].components;
+            // var insertedClipComponents = newSeq.videoTracks[0].clips[0].components;
             // $._PPP_.updateEventPanel('Components of the inserted clip: [' + Array.from(insertedClipComponents).map(c => c.displayName).join(', ') + ']');
             
             // Iterate through the components of the inserted clip
-            var componentsLog = 'Components of the inserted clip:';
-            for (var c = 0; c < insertedClipComponents.numItems; c++) {
-                var component = insertedClipComponents[c];
-                componentsLog += ' [' + c + '] displayName=' + component.displayName + ';';
-            }
-            $._PPP_.updateEventPanel(componentsLog);
+            // var componentsLog = 'Components of the inserted clip:';
+            // for (var c = 0; c < insertedClipComponents.numItems; c++) {
+            //     var component = insertedClipComponents[c];
+            //     componentsLog += ' [' + c + '] displayName=' + component.displayName + ';';
+            // }
+            // $._PPP_.updateEventPanel(componentsLog);
             
-            // Iterate through the properties of each component of the inserted clip
-            var propertiesLog = 'Properties of the components of the inserted clip:';
-            for (var c = 0; c < insertedClipComponents.numItems; c++) {
-                var component = insertedClipComponents[c];
-                for (var p = 0; p < component.properties.numItems; p++) {
-                    var property = component.properties[p];
-                    propertiesLog += ' [Component ' + c + ', Property ' + p + '] displayName=' + property.displayName + ';';
-                }
-            }
-            $._PPP_.updateEventPanel(propertiesLog);
+            // // Iterate through the properties of each component of the inserted clip
+            // var propertiesLog = 'Properties of the components of the inserted clip:';
+            // for (var c = 0; c < insertedClipComponents.numItems; c++) {
+            //     var component = insertedClipComponents[c];
+            //     for (var p = 0; p < component.properties.numItems; p++) {
+            //         var property = component.properties[p];
+            //         propertiesLog += ' [Component ' + c + ', Property ' + p + '] displayName=' + property.displayName + ';';
+            //     }
+            // }
+            // $._PPP_.updateEventPanel(propertiesLog);
             
             // Add the black frame at the start if it exists
             newSeq.videoTracks[0].insertClip(projItemBlackFrame, 0, 0, 0);
@@ -204,10 +204,12 @@ $._PPP_.exportSequencesToME = function(binName, exportBasePath, payloadsPath, se
             app.project.activeSequence = targetSeq;
             var seqName = projItemFile.name;
             var presetPath = payloadsPath + 'KiPro_ndxhd-hqx10bit_FHD_8ChMono_48kHz_24bit_23LUFs_ver2-5.epr';
+            $._PPP_.updateEventPanel('[ME Export] Exporting sequence: ' + seqName + ' with preset: ' + presetPath);
             var outputPath = exportBasePath + sep + binName + sep + seqName + '.mov';
-            $._PPP_.updateEventPanel('[ME Export] Constructed export path: ' + seqName + ' to ' + outputPath);
+            $._PPP_.updateEventPanel('[ME Export] Sequence: ' + seqName + ' exporting to constructed path: ' + outputPath);
             var workArea = 0; // ENCODE_ENTIRE
             var removeUponCompletion = 0;
+            $._PPP_.updateEventPanel('[ME Export] Preparing to encode sequence');
             var jobId = app.encoder.encodeSequence(targetSeq, outputPath, presetPath, workArea, removeUponCompletion);
             if (jobId && jobId !== '0') {
                 $._PPP_.updateEventPanel('[ME Export] Sent to Media Encoder: ' + seqName);
