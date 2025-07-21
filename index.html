@@ -1,70 +1,133 @@
-<!doctype html>
-<html>
-<title>KiPro Sequences</title>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+
 <head>
-<meta charset="utf-8">
-<script src="./ext.js"></script>
-<script src="./lib/CSInterface.js"></script>
-<script src="./lib/jquery-1.9.1.js"></script>
-<script src="./lib/Vulcan.js"></script>
-<script src="./jsx/createSequencesFromBin.jsx"></script>
-<script src="./jsx/exportSequencesToME.jsx"></script>
-<link id="ppstyle" href="css/style.css" rel="stylesheet" type="text/css">
-<script type="text/javascript">
-	document.addEventListener('DOMContentLoaded', function() {
-        var csInterface = new CSInterface();
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<script src="./lib/jquery-1.9.1.js"></script>
+	<script src="./lib/CSInterface.js"></script>
+	<script src="./ext.js"></script>
+	<script src="./lib/Vulcan.js"></script>
 
-        // Get the extension root path and immediately normalize it to use forward slashes.
-        // This works reliably on both Windows and macOS.
-        var extensionRoot = csInterface.getSystemPath(SystemPath.EXTENSION);
-        var normalizedExtensionRoot = extensionRoot.replace(/\\/g, '/');
+	<link id="ppstyle" href="./css/style.css" rel="stylesheet" type="text/css">
 
 
-        // listener for createSequencesFromBin button
-        document.getElementById('createSequencesFromBin').onclick = function() {
-            var binName = document.getElementById('binNameInput').value;
-            if (binName) {
-                // Escape quotes in user input and pass the normalized extension path
-                var safeBinName = binName.replace(/"/g, '\\"');
-                csInterface.evalScript('$._PPP_.createSequencesFromBin("' + safeBinName + '", "' + normalizedExtensionRoot + '")');
+
+<!-- setup up the CSInterface and functions -->
+	<script type="text/javascript">
+		$(document).ready(function () {
+
+			// For functions which require interaction at the JavaScript level, we provide these JQuery-based
+			// handlers, instead of directly invoking ExtendScript. This gives the JavaScript layer a chance
+			// to pass data into the ExtendScript layer, and process the results.
+
+			$("#createSequencesFromBin").on("click", function (e) {
+				e.preventDefault();
+
+				var csInterface = new CSInterface();
+				var OSVersion = csInterface.getOSInformation();
+				var PlugPlugExtensionPath = csInterface.getSystemPath(SystemPath.EXTENSION);
+
+				csInterface.evalScript('$._PPP_.getUserName()', myUserNameFunction);
+
+				if (OSVersion) {
+					// The path always comes back with '/' path separators. Windows needs '\\'.
+					if (OSVersion.indexOf("Windows") >= 0) {
+						var initPath = 'C:\\Users\\' + csInterface.getSystemPath(SystemPath.USER_DATA);
+						var sep = '\\\\';
+						PlugPlugExtensionPath = PlugPlugExtensionPath.replace(/[/\\]/g, '\\');
+					} else {
+						var initPath = '/Users/' + csInterface.getSystemPath(SystemPath.USER_DATA);
+						var sep = '/';
+					}
+
+					var binName = $('#binNameInput').val();
+					var blackFrameName = $('#blackFrameInput').val();
+					var payloadsPath = PlugPlugExtensionPath + '\\payloads\\';
+					payloadsPath = payloadsPath.replace(/\\/g, sep); // Ensure path separators are consistent
+
+					// evaluate the ExtendScript function to create sequences from the bin
+					csInterface.evalScript('$._PPP_.createSequencesFromBin("' + binName + '", "' + blackFrameName + '", "' + payloadsPath + '", "' + sep + '")');
+				}
+			});
+
+
+			$("#exportSequencesToME").on("click", function (e) {
+				e.preventDefault();
+
+				var csInterface = new CSInterface();
+				var OSVersion = csInterface.getOSInformation();
+				var PlugPlugExtensionPath = csInterface.getSystemPath(SystemPath.EXTENSION);
+
+				csInterface.evalScript('$._PPP_.getUserName()', myUserNameFunction);
+
+				if (OSVersion) {
+					// The path always comes back with '/' path separators. Windows needs '\\'.
+					if (OSVersion.indexOf("Windows") >= 0) {
+						var initPath = 'C:\\Users\\' + csInterface.getSystemPath(SystemPath.USER_DATA);
+						var sep = '\\\\';
+						PlugPlugExtensionPath = PlugPlugExtensionPath.replace(/[/\\]/g, '\\');
+					} else {
+						var initPath = '/Users/' + csInterface.getSystemPath(SystemPath.USER_DATA);
+						var sep = '/';
+					}
+
+					var binName = $('#binNameInput').val();
+					var exportBasePath = $('#exportBasePathInput').val();
+					exportBasePath = exportBasePath.replace(/\\/g, sep); // Ensure path separators are consistent
+					var payloadsPath = PlugPlugExtensionPath + '\\payloads\\';
+					payloadsPath = payloadsPath.replace(/\\/g, sep); // Ensure path separators are consistent
+
+					// evaluate the ExtendScript function to create sequences from the bin
+					csInterface.evalScript('$._PPP_.exportSequencesToME("' + binName + '", "' + exportBasePath + '", "' + payloadsPath + '", "' + sep + '")');
+				}
+			});
+		});
+
+	</script>
+
+
+    <!-- The body of the HTML document -->
+    <body onLoad="onLoaded()">
+		
+        <div id="section1">
+            <p>Name of bin to create sequences</p>
+            <input type="text" id="binNameInput" placeholder="Enter bin name" value="animation" />
+            <br/>
+            <p>Name of black frame at beginning</p>
+            <input type="text" id="blackFrameInput" placeholder="Enter black_frame name" value="schwarz_frame" />
+            <br/>
+            <p>Export base path</p>
+            <input type="text" id="exportBasePathInput" placeholder="I:\2025\2025-festival\converting_dnx\out" value="I:\2025\2025-festival\converting_dnx\out" />
+            <br/>
+            <button id="createSequencesFromBin">Create Sequences</button>
+            <button id="exportSequencesToME">Export Sequences to ME</button>
+        </div>
+
+    </body>
+
+
+
+    <!-- This script is used to handle the onbeforeunload event for the extension -->
+    <script>
+        document.body.onbeforeunload = function () {
+            var csInterface 	= new CSInterface();
+            var OSVersion 		= csInterface.getOSInformation();
+            var appVersion 		= csInterface.hostEnvironment.appVersion;
+            var versionAsFloat	= parseFloat(appVersion);
+            
+            csInterface.evalScript('$._PPP_.closeLog()');
+
+            if (versionAsFloat < 10.3) {
+                var path = "file:///Library/Application Support/Adobe/CEP/extensions/PProPanel/payloads/onbeforeunload.html";
+
+                if (OSVersion.indexOf("Windows") >= 0) {
+                    path = "file:///C:/Program%20Files%20(x86)/Common%20Files/Adobe/CEP/extensions/PProPanel/payloads/onbeforeunload.html"
+                }
+                csInterface.openURLInDefaultBrowser(path);
             }
         };
+    </script>
 
-        // listener for exportSequencesToME button
-        document.getElementById('exportSequencesToME').onclick = function() {
-            var binName = document.getElementById('binNameInput').value;
-            var exportBasePath = document.getElementById('exportBasePathInput').value;
-
-            if (binName && exportBasePath) {
-                // Normalize the user-provided path as well
-                var normalizedExportPath = exportBasePath.replace(/\\/g, '/');
-
-                // Construct the payloads path. Appending a slash is now simple and clean.
-                var payloadsPath = normalizedExtensionRoot + '/payloads/';
-
-                // Escape any quotes in the inputs before passing them to ExtendScript
-                var safeBinName = binName.replace(/"/g, '\\"');
-                var safeExportPath = normalizedExportPath.replace(/"/g, '\\"');
-                
-                csInterface.evalScript('$._PPP_.exportSequencesToME("' + safeBinName + '", "' + safeExportPath + '", "' + payloadsPath + '")');
-            }
-        };
-    });
-</script>
 </head>
-
-<!-- The body of the HTML document -->
-<body>
-	<p>Name of bin to create sequences</p>
-	<input type="text" id="binNameInput" placeholder="Enter bin name" value="animation" />
-	<br/>
-	<p>Name of black frame at beginning</p>
-	<input type="text" id="blackFrameInput" placeholder="Enter black_frame name" value="schwarz_frame" />
-	<br/>
-	<p>Export base path</p>
-	<input type="text" id="exportBasePathInput" placeholder="I:\2025\2025-festival\converting_dnx\out" value="I:\2025\2025-festival\converting_dnx\out" />
-	<br/>
-		<button id="createSequencesFromBin">Create Sequences</button>
-		<button id="exportSequencesToME">Export Sequences to ME</button>
-</body>
 </html>

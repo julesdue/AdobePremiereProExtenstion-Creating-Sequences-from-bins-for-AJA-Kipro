@@ -1,82 +1,8 @@
 $._PPP_ = $._PPP_ || {};
 
-// if(typeof($)=='undefined') {
-// 	$={};
-// }
+$._PPP_.createSequencesFromBin = function(binName, blackFrameName, payloadsPath, sep) {
+    $._PPP_.updateEventPanel('createSequencesFromBin called');
 
-// $._ext = {
-// 	//Evaluate a file and catch the exception.
-// 	evalFile : function(path) {
-// 		try {
-// 			$.evalFile(path);
-// 		} catch (e) {alert("Exception:" + e);}
-// 	},
-// 	// Evaluate all the files in the given folder 
-// 	evalFiles: function(jsxFolderPath) {
-// 		var folder = new Folder(jsxFolderPath);
-// 		if (folder.exists) {
-// 			var jsxFiles = folder.getFiles("*.jsx");
-// 			for (var i = 0; i < jsxFiles.length; i++) {
-// 				var jsxFile = jsxFiles[i];
-// 				$._ext.evalFile(jsxFile);
-// 			}
-// 		}
-// 	},
-// 	// entry-point function to call scripts more easily & reliably
-// 	callScript: function(dataStr) {
-// 		try {
-// 			var dataObj = JSON.parse(decodeURIComponent(dataStr));
-// 			if (
-// 				!dataObj ||
-// 				!dataObj.namespace ||
-// 				!dataObj.scriptName ||
-// 				!dataObj.args
-// 			) {
-// 				throw new Error('Did not provide all needed info to callScript!');
-// 			}
-// 			// call the specified jsx-function
-// 			var result = $[dataObj.namespace][dataObj.scriptName].apply(
-// 				null,
-// 				dataObj.args
-// 			);
-// 			// build the payload-object to return
-// 			var payload = {
-// 				err: 0,
-// 				result: result
-// 			};
-// 			return encodeURIComponent(JSON.stringify(payload));
-// 		} catch (err) {
-// 			var payload = {
-// 				err: err
-// 			};
-// 			return encodeURIComponent(JSON.stringify(payload));
-// 		}
-// 	}
-// };
-
-// // Load all other JSX files in the jsx folder (except this one)
-// (function() {
-// 	var thisFile = File($.fileName).name;
-// 	var jsxFolder = new Folder(File($.fileName).parent + '/jsx');
-// 	if (jsxFolder.exists) {
-// 		var jsxFiles = jsxFolder.getFiles('*.jsx');
-// 		for (var i = 0; i < jsxFiles.length; i++) {
-// 			var file = jsxFiles[i];
-// 			if (file.name !== thisFile) {
-// 				$.evalFile(file);
-// 			}
-// 		}
-// 	}
-// })();
-
-
-
-
-
-
-
-
-$._PPP_.createSequencesFromBin = function(binName, extensionPath) {
     var project = app.project;
     function findBinByName(root, name) {
         for (var i = 0; i < root.children.numItems; i++) {
@@ -106,51 +32,26 @@ $._PPP_.createSequencesFromBin = function(binName, extensionPath) {
     }
     $._PPP_.updateEventPanel(binItemsMsg);
     
-    // Prepare export output base path using the bin name as subfolder
+    // search for the black frame item
     var projItemBlackFrame = null;
-    var blackFrameNames = [
-        "black",
-        "black_frame",
-        "filler_frame",
-        "schwarz",
-        "schwarzer_frame",
-        "schwarz_frame"
-    ];
     for (var i = 0; i < project.rootItem.children.numItems; i++) {
         var item = project.rootItem.children[i];
         if (item) {
-            for (var j = 0; j < blackFrameNames.length; j++) {
-                if (item.name === blackFrameNames[j]) {
-                    projItemBlackFrame = item;
-                    break;
-                }
+            if (item.name === blackFrameName) {
+                projItemBlackFrame = item;
+                break;
             }
-            if (projItemBlackFrame) break;
         }
     }
     if (!projItemBlackFrame) {
-        $._PPP_.updateEventPanel('Black frame not found. Searched for: ' + blackFrameNames.join(', '));
+        $._PPP_.updateEventPanel('Black frame not found. Searched for: ' + blackFrameName);
     }
-
-    // Determine path separator based on OS
-    var sep;
-    if ($.os && $.os.toLowerCase().indexOf('windows') >= 0) {
-        sep = '/';
-    } else {
-        sep = '/'; // Default to forward slash for Mac and other OS
-    }
-
-    var extensionBase = extensionPath;
-    $._PPP_.updateEventPanel('Extension path: ' + extensionBase);
-    if (extensionBase.slice(-1) !== sep) extensionBase += sep;
-    extensionBase += 'payloads' + sep;
-    $._PPP_.updateEventPanel('Using extension base path: ' + extensionBase);
 
     // starting loop to create sequences
     var createdCount = 0;
     for (var i = 0; i < bin.children.numItems; i++) {
         var projItemFile = bin.children[i];
-        if (projItemFile && projItemFile.type === ProjectItemType.CLIP) {
+        if (projItemFile && projItemFile.name.slice(-4) !== '_dnx') {
             
             $._PPP_.updateEventPanel('### START CLIP ###');
             
@@ -181,7 +82,10 @@ $._PPP_.createSequencesFromBin = function(binName, extensionPath) {
                 $._PPP_.updateEventPanel('No match for fps, using: ' + fpsNum.toString().replace(/[,\.]/g, ''));
                 fpsPreset = fpsNum.toString().replace(/[,\.]/g, '');
             }
-            var presetPath = extensionBase + 'KiPro_FHD_8Ch_' + fpsPreset + 'fps.sqpreset';
+
+            // loading sqrpreset
+            $._PPP_.updateEventPanel('payloadsPath: ' + payloadsPath);
+            var presetPath = payloadsPath + 'KiPro_FHD_8Ch_' + fpsPreset + 'fps.sqpreset';
             $._PPP_.updateEventPanel('Using the preset: ' + presetPath);
             
             var seqName = projItemFile.name.replace(/\.[^\.]+$/, '_dnx');
@@ -209,6 +113,30 @@ $._PPP_.createSequencesFromBin = function(binName, extensionPath) {
             newSeq.videoTracks[0].insertClip(projItemFile, offset, 0, 0);
             $._PPP_.updateEventPanel(projItemFile.name + ' added to sequence: ' + newSeq.name);
             
+            // Log the components of the inserted clip
+			
+            var insertedClipComponents = newSeq.videoTracks[0].clips[0].components;
+            // $._PPP_.updateEventPanel('Components of the inserted clip: [' + Array.from(insertedClipComponents).map(c => c.displayName).join(', ') + ']');
+            
+            // Iterate through the components of the inserted clip
+            var componentsLog = 'Components of the inserted clip:';
+            for (var c = 0; c < insertedClipComponents.numItems; c++) {
+                var component = insertedClipComponents[c];
+                componentsLog += ' [' + c + '] displayName=' + component.displayName + ';';
+            }
+            $._PPP_.updateEventPanel(componentsLog);
+            
+            // Iterate through the properties of each component of the inserted clip
+            var propertiesLog = 'Properties of the components of the inserted clip:';
+            for (var c = 0; c < insertedClipComponents.numItems; c++) {
+                var component = insertedClipComponents[c];
+                for (var p = 0; p < component.properties.numItems; p++) {
+                    var property = component.properties[p];
+                    propertiesLog += ' [Component ' + c + ', Property ' + p + '] displayName=' + property.displayName + ';';
+                }
+            }
+            $._PPP_.updateEventPanel(propertiesLog);
+            
             // Add the black frame at the start if it exists
             newSeq.videoTracks[0].insertClip(projItemBlackFrame, 0, 0, 0);
             $._PPP_.updateEventPanel('Black frame added to sequence: ' + newSeq.name);
@@ -231,23 +159,11 @@ $._PPP_.createSequencesFromBin = function(binName, extensionPath) {
     $._PPP_.updateEventPanel("Created " + createdCount + " sequences for files in bin: " + binName);
 };
 
+$._PPP_.exportSequencesToME = function(binName, exportBasePath, payloadsPath, sep) {
+    $._PPP_.updateEventPanel('exportSequencesToME called');
 
-
-
-
-$._PPP_.exportSequencesToME = function(binName, exportBasePath, extensionBase) {
     app.encoder.launchEncoder();
     var project = app.project;
-    
-    // Determine path separator based on OS
-    var sep;
-    if ($.os.indexOf('Windows') >= 0) {
-        sep = '\\';
-    } else if ($.os.indexOf('Macintosh') >= 0) {
-        sep = '/';
-    } else {
-        sep = '/'; // Default to forward slash for other OS
-    }
 
     // Find the bin by name
     function findBinByName(root, name) {
@@ -269,15 +185,6 @@ $._PPP_.exportSequencesToME = function(binName, exportBasePath, extensionBase) {
         return;
     }
 
-    // Prepare export output base path using the bin name as subfolder
-    var outputBase = exportBasePath;
-    if (outputBase && outputBase.length > 0) {
-        if (outputBase.slice(-1) !== sep) outputBase += sep;
-        outputBase += binName + sep;
-    } else {
-        outputBase = extensionBase;
-    }
-
     var exportedCount = 0;
     for (var i = 0; i < bin.children.numItems; i++) {
         var projItemFile = bin.children[i];
@@ -296,8 +203,9 @@ $._PPP_.exportSequencesToME = function(binName, exportBasePath, extensionBase) {
             }
             app.project.activeSequence = targetSeq;
             var seqName = projItemFile.name;
-            var presetPath = extensionBase + 'KiPro_ndxhd-hqx10bit_FHD_8ChMono_48kHz_24bit_23LUFs_ver2-5.epr';
-            var outputPath = outputBase + seqName + '.mov';
+            var presetPath = payloadsPath + 'KiPro_ndxhd-hqx10bit_FHD_8ChMono_48kHz_24bit_23LUFs_ver2-5.epr';
+            var outputPath = exportBasePath + sep + binName + sep + seqName + '.mov';
+            $._PPP_.updateEventPanel('[ME Export] Constructed export path: ' + seqName + ' to ' + outputPath);
             var workArea = 0; // ENCODE_ENTIRE
             var removeUponCompletion = 0;
             var jobId = app.encoder.encodeSequence(targetSeq, outputPath, presetPath, workArea, removeUponCompletion);

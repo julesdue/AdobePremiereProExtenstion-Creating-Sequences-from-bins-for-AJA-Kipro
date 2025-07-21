@@ -6,11 +6,24 @@
             "request": "launch",
             "name": "Debug ExtendScript in PPro",
             "script": "${workspaceFolder}/jsx/PPRO/Premiere.jsx",
-            "stopOnEntry": false,
-            "trace": true,
-            "logFile" : "~/Desktop/AMEPanel_Log.txt",
-            "selectTargetColor": "green"
+            // "stopOnEntry": false,
+            // "trace": true,
+            // "logFile" : "~/Desktop/AMEPanel_Log.txt",
+            // "selectTargetColor": "green"
         },
+        {
+            "type": "extendscript-debug",
+            "request": "launch",
+            "name": "Debug test",
+            "script": "${workspaceFolder}/${command:AskForScriptName}"
+        },
+        // custom debugger
+        {
+            "type": "extendscript-debug",
+            "request": "launch",
+            "name": "Debug KiPro Sequence Extension",
+            "script": "${workspaceFolder}/${command:AskForScriptName}",
+        },    
         {
             "type": "chrome",
             "request": "attach",
