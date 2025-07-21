@@ -27,24 +27,27 @@
 				var csInterface = new CSInterface();
 				var OSVersion = csInterface.getOSInformation();
 				var PlugPlugExtensionPath = csInterface.getSystemPath(SystemPath.EXTENSION);
+				PlugPlugExtensionPath = normalizePath(PlugPlugExtensionPath);
 
-				csInterface.evalScript('$._PPP_.getUserName()', myUserNameFunction);
+				// csInterface.evalScript('$._PPP_.getUserName()', myUserNameFunction);
 
 				if (OSVersion) {
 					// The path always comes back with '/' path separators. Windows needs '\\'.
 					if (OSVersion.indexOf("Windows") >= 0) {
-						var initPath = 'C:\\Users\\' + csInterface.getSystemPath(SystemPath.USER_DATA);
+						// var initPath = 'C:\\Users\\' + csInterface.getSystemPath(SystemPath.USER_DATA);
 						var sep = '\\\\';
 						PlugPlugExtensionPath = PlugPlugExtensionPath.replace(/[/\\]/g, '\\');
 					} else {
-						var initPath = '/Users/' + csInterface.getSystemPath(SystemPath.USER_DATA);
+						// var initPath = '/Users/' + csInterface.getSystemPath(SystemPath.USER_DATA);
 						var sep = '/';
 					}
 
 					var binName = $('#binNameInput').val();
 					var blackFrameName = $('#blackFrameInput').val();
-					var payloadsPath = PlugPlugExtensionPath + '\\payloads\\';
-					payloadsPath = payloadsPath.replace(/\\/g, sep); // Ensure path separators are consistent
+					var payloadsPath = PlugPlugExtensionPath + '/payloads/';
+					payloadsPath = normalizePath(payloadsPath);
+					// var payloadsPath = PlugPlugExtensionPath + '\\payloads\\';
+					// payloadsPath = payloadsPath.replace(/\\/g, sep); // Ensure path separators are consistent
 
 					// evaluate the ExtendScript function to create sequences from the bin
 					csInterface.evalScript('$._PPP_.createSequencesFromBin("' + binName + '", "' + blackFrameName + '", "' + payloadsPath + '", "' + sep + '")');
@@ -59,16 +62,16 @@
 				var OSVersion = csInterface.getOSInformation();
 				var PlugPlugExtensionPath = csInterface.getSystemPath(SystemPath.EXTENSION);
 
-				csInterface.evalScript('$._PPP_.getUserName()', myUserNameFunction);
+				// csInterface.evalScript('$._PPP_.getUserName()', myUserNameFunction);
 
 				if (OSVersion) {
 					// The path always comes back with '/' path separators. Windows needs '\\'.
 					if (OSVersion.indexOf("Windows") >= 0) {
-						var initPath = 'C:\\Users\\' + csInterface.getSystemPath(SystemPath.USER_DATA);
+						// var initPath = 'C:\\Users\\' + csInterface.getSystemPath(SystemPath.USER_DATA);
 						var sep = '\\\\';
 						PlugPlugExtensionPath = PlugPlugExtensionPath.replace(/[/\\]/g, '\\');
 					} else {
-						var initPath = '/Users/' + csInterface.getSystemPath(SystemPath.USER_DATA);
+						// var initPath = '/Users/' + csInterface.getSystemPath(SystemPath.USER_DATA);
 						var sep = '/';
 					}
 
